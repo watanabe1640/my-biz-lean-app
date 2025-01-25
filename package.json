@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:setup": "ts-node src/lib/db/setup.ts"
   },
   "dependencies": {
     "@vercel/blob": "^0.27.1",
