@@ -7,12 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:setup": "ts-node src/lib/db/setup.ts"
+    "db:setup": "node -r dotenv/config src/lib/db/setup.mjs dotenv_config_path=.env.local"
   },
   "dependencies": {
     "@vercel/blob": "^0.27.1",
     "@vercel/postgres": "^0.10.0",
     "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
     "jsonwebtoken": "^9.0.2",
     "next": "15.1.6",
     "react": "^19.0.0",
@@ -27,6 +28,8 @@
     "eslint-config-next": "15.1.6",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
-  }
+  },
+  "type": "module"
 }
