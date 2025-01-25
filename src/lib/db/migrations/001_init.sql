@@ -1,0 +1,24 @@
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE quizzes (
+  id SERIAL PRIMARY KEY,
+  question TEXT NOT NULL,
+  options TEXT[] NOT NULL,
+  correct_answer INTEGER NOT NULL,
+  image_url TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE progress (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id),
+  quiz_id INTEGER REFERENCES quizzes(id),
+  is_correct BOOLEAN NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
