@@ -1,6 +1,6 @@
 // src/app/quiz/page.tsx
 'use client';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Quiz {
  id: number;
@@ -13,19 +13,29 @@ interface Quiz {
 
 export default function QuizPage() {
  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+ const [answers, setAnswers] = useState<{[key: number]: number}>({});
+ const [results, setResults] = useState<{[key: number]: boolean}>({});
 
  useEffect(() => {
    async function fetchQuizzes() {
-     try {
-       const response = await fetch('/api/quiz');
-       const data = await response.json();
-       setQuizzes(data);
-     } catch (error) {
-       console.error('Failed to fetch quizzes:', error);
-     }
+     const response = await fetch('/api/quiz');
+     const data = await response.json();
+     setQuizzes(data);
    }
    fetchQuizzes();
  }, []);
+
+ const handleAnswer = (quizId: number, selectedAnswer: number) => {
+   setAnswers(prev => ({...prev, [quizId]: selectedAnswer}));
+ };
+
+ const checkAnswer = (quizId: number) => {
+   const quiz = quizzes.find(q => q.id === quizId);
+   if (!quiz) return;
+   
+   const isCorrect = answers[quizId] === quiz.correct_answer;
+   setResults(prev => ({...prev, [quizId]: isCorrect}));
+ };
 
  return (
    <div className="max-w-4xl mx-auto p-4">
@@ -35,9 +45,34 @@ export default function QuizPage() {
          <h2 className="font-bold">{quiz.question}</h2>
          <div className="mt-2 space-y-2">
            {quiz.options.map((option, index) => (
-             <div key={index} className="ml-4">{option}</div>
+             <div key={index} className="ml-4">
+               <label className="flex items-center space-x-2">
+                 <input
+                   type="radio"
+                   name={`quiz-${quiz.id}`}
+                   value={index}
+                   onChange={() => handleAnswer(quiz.id, index)}
+                   disabled={results[quiz.id] !== undefined}
+                 />
+                 <span>{option}</span>
+               </label>
+             </div>
            ))}
          </div>
+         {answers[quiz.id] !== undefined && !results[quiz.id] && (
+           <button
+             onClick={() => checkAnswer(quiz.id)}
+             className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+           >
+             回答する
+           </button>
+         )}
+         {results[quiz.id] !== undefined && (
+           <div className={`mt-4 p-2 rounded ${results[quiz.id] ? 'bg-green-100' : 'bg-red-100'}`}>
+             {results[quiz.id] ? '正解！' : '不正解...'}
+             {quiz.explanation && <p className="mt-2">{quiz.explanation}</p>}
+           </div>
+         )}
        </div>
      ))}
    </div>
