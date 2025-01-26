@@ -1,42 +1,68 @@
 // src/components/auth/LoginForm.tsx
 'use client';
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
+
+interface LoginFormData {
+ email: string;
+ password: string;
+}
 
 export default function LoginForm() {
- const [email, setEmail] = useState('');
- const [password, setPassword] = useState('');
+ const [formData, setFormData] = useState<LoginFormData>({
+   email: '',
+   password: ''
+ });
 
- const handleSubmit = async (e: React.FormEvent) => {
+ async function handleSubmit(e: FormEvent) {
    e.preventDefault();
-   // APIの実装は後ほど
-   console.log('Login attempt:', { email, password });
+
+   try {
+     const response = await fetch('/api/auth/login', {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify(formData),
+     });
+
+     if (response.ok) {
+       window.location.href = '/';
+     } else {
+       const data = await response.json();
+       alert(data.error || 'Login failed');
+     }
+   } catch (err) {
+     console.error('Login error:', err);
+     alert('Failed to login');
+   }
+ }
+
+ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+   setFormData({
+     ...formData,
+     [e.target.name]: e.target.value
+   });
  };
 
  return (
    <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-8 space-y-6">
      <div>
-       <label htmlFor="email" className="block text-sm font-medium">
-         Email
-       </label>
+       <label htmlFor="email" className="block text-sm font-medium">Email</label>
        <input
-         id="email"
          type="email"
+         name="email"
          required
-         value={email}
-         onChange={(e) => setEmail(e.target.value)}
+         value={formData.email}
+         onChange={handleChange}
          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
        />
      </div>
      <div>
-       <label htmlFor="password" className="block text-sm font-medium">
-         Password
-       </label>
+       <label htmlFor="password" className="block text-sm font-medium">Password</label>
        <input
-         id="password"
          type="password"
+         name="password"
          required
-         value={password}
-         onChange={(e) => setPassword(e.target.value)}
+         value={formData.password}
+         onChange={handleChange}
          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
        />
      </div>

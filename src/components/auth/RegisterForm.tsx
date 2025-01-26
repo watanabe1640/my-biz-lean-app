@@ -1,23 +1,53 @@
 // src/components/auth/RegisterForm.tsx
 'use client';
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
+
+interface RegisterFormData {
+ name: string;
+ email: string;
+ password: string;
+ confirmPassword: string;
+}
 
 export default function RegisterForm() {
- const [formData, setFormData] = useState({
+ const [formData, setFormData] = useState<RegisterFormData>({
    name: '',
    email: '',
    password: '',
    confirmPassword: ''
  });
 
- const handleSubmit = async (e: React.FormEvent) => {
+ async function handleSubmit(e: FormEvent) {
    e.preventDefault();
    if (formData.password !== formData.confirmPassword) {
      alert('Passwords do not match');
      return;
    }
-   console.log('Register attempt:', formData);
- };
+
+   try {
+     const response = await fetch('/api/auth/register', {
+       method: 'POST',
+       headers: {
+         'Content-Type': 'application/json',
+       },
+       body: JSON.stringify({
+         name: formData.name,
+         email: formData.email,
+         password: formData.password,
+       }),
+     });
+
+     if (response.ok) {
+       window.location.href = '/auth/login';
+     } else {
+       const data = await response.json();
+       alert(data.error || 'Registration failed');
+     }
+   } catch (err) {
+     console.error('Registration error:', err);
+     alert('Failed to register');
+   }
+ }
 
  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
    setFormData({

@@ -1,8 +1,7 @@
 // src/lib/db/index.ts
 import { sql } from '@vercel/postgres';
-import { VercelPoolClient } from '@vercel/postgres';
 
-export async function query(text: string, params?: any[]) {
+export async function query(text: string, params?: unknown[]) {
  try {
    const result = await sql.query(text, params);
    return result;
