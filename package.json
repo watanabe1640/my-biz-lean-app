@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:setup": "node -r dotenv/config src/lib/db/setup.mjs dotenv_config_path=.env.local"
+    "db:setup": "node -r dotenv/config src/lib/db/setup.mjs dotenv_config_path=.env.local",
+    "db:sample": "node -r dotenv/config src/lib/db/setup-sample.mjs dotenv_config_path=.env.local"
   },
   "dependencies": {
     "@types/bcrypt": "^5.0.2",
