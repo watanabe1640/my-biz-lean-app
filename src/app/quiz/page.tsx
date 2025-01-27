@@ -46,7 +46,11 @@ export default function QuizPage() {
       <h1 className="text-2xl font-bold mb-8">学習教材</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {books.map((book) => (
-          <div key={book.id} className="border rounded-lg shadow hover:shadow-lg transition-shadow">
+          <div 
+            key={book.id} 
+            className="border rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => router.push(`/quiz/${book.id}`)}
+          >
           <div className="aspect-[2/3] relative bg-gray-100 rounded-t-lg overflow-hidden">
             {book.cover_image_url ? (
               <Image 

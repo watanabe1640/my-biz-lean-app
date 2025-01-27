@@ -9,7 +9,8 @@
     "lint": "next lint",
     "db:setup": "node -r dotenv/config src/lib/db/setup.mjs dotenv_config_path=.env.local",
     "db:sample": "node -r dotenv/config src/lib/db/setup-sample.mjs dotenv_config_path=.env.local",
-    "db:images": "node -r dotenv/config src/lib/db/setup-images.mjs dotenv_config_path=.env.local"
+    "db:images": "node -r dotenv/config src/lib/db/setup-images.mjs dotenv_config_path=.env.local",
+    "db:sessions": "node -r dotenv/config src/lib/db/setup-sessions.mjs dotenv_config_path=.env.local"
   },
   "dependencies": {
     "@types/bcrypt": "^5.0.2",
