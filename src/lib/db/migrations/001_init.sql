@@ -1,7 +1,10 @@
-DROP TABLE IF EXISTS progress CASCADE;
+-- src/lib/db/migrations/001_init.sql
+DROP TABLE IF EXISTS user_progress CASCADE;
 DROP TABLE IF EXISTS quizzes CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS difficulty_levels CASCADE;
+DROP TABLE IF EXISTS chapters CASCADE;
 DROP TABLE IF EXISTS books CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
@@ -18,9 +21,23 @@ CREATE TABLE books (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE quizzes (
+CREATE TABLE chapters (
   id SERIAL PRIMARY KEY,
   book_id INTEGER REFERENCES books(id),
+  chapter_number INTEGER NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE difficulty_levels (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE quizzes (
+  id SERIAL PRIMARY KEY,
+  chapter_id INTEGER REFERENCES chapters(id),
+  difficulty_id INTEGER REFERENCES difficulty_levels(id),
   question TEXT NOT NULL,
   options TEXT[] NOT NULL,
   correct_answer INTEGER NOT NULL,
@@ -28,10 +45,11 @@ CREATE TABLE quizzes (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE progress (
+CREATE TABLE user_progress (
   id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users(id),
   quiz_id INTEGER REFERENCES quizzes(id),
   is_correct BOOLEAN NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, quiz_id)
 );
