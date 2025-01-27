@@ -2,6 +2,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface Book {
   id: number;
@@ -9,6 +10,7 @@ interface Book {
   author: string;
   total_quizzes: number;
   completed_quizzes: number;
+  cover_image_url: string;
 }
 
 export default function QuizPage() {
@@ -45,12 +47,24 @@ export default function QuizPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {books.map((book) => (
           <div key={book.id} className="border rounded-lg shadow hover:shadow-lg transition-shadow">
-            <div className="aspect-[3/4] relative bg-gray-100 rounded-t-lg flex items-center justify-center p-4">
-              <div className="text-center">
-                <h3 className="font-bold text-xl mb-2">{book.title}</h3>
-                <p className="text-gray-600">{book.author}</p>
+          <div className="aspect-[2/3] relative bg-gray-100 rounded-t-lg overflow-hidden">
+            {book.cover_image_url ? (
+              <Image 
+                src={book.cover_image_url} 
+                alt={book.title}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-contain p-4"
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <h3 className="font-bold text-xl mb-2">{book.title}</h3>
+                  <p className="text-gray-600">{book.author}</p>
+                </div>
               </div>
-            </div>
+            )}
+          </div>
             <div className="p-4">
               <div className="flex justify-between mb-2">
                 <span>進捗</span>

@@ -27,13 +27,14 @@ export async function GET(request: Request) {
         b.id,
         b.title,
         b.author,
+		b.cover_image_url,
         COUNT(q.id) as total_quizzes,
         COUNT(up.id) FILTER (WHERE up.user_id = $1 AND up.is_correct = true) as completed_quizzes
       FROM books b
       LEFT JOIN chapters c ON c.book_id = b.id
       LEFT JOIN quizzes q ON q.chapter_id = c.id
       LEFT JOIN user_progress up ON up.quiz_id = q.id AND up.user_id = $1
-      GROUP BY b.id, b.title, b.author
+      GROUP BY b.id, b.title, b.author, b.cover_image_url
       ORDER BY b.id
     `, [decoded.userId]);
 
