@@ -32,12 +32,27 @@ export default function Navbar() {
           </Link>
           <div className="flex items-center space-x-4">
             {isLoggedIn ? (
-              <button 
-                onClick={handleLogout}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                Logout
-              </button>
+              <>
+                <Link 
+                  href="/quiz" 
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  Quiz
+                </Link>
+                <Link 
+                  href="/profile"
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  Profile
+                </Link>
+                <button 
+                  onClick={handleLogout}
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  Logout
+                </button>
+              </>
+              
             ) : (
               <>
                 <Link href="/auth/login" className="text-gray-600 hover:text-gray-900">
