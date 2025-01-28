@@ -30,7 +30,6 @@ export async function POST(request: Request) {
     );
     const sessionId = sessionResult.rows[0].id;
 
-    // クイズの取得とシャッフル
     let quizzes;
     if (sessionType === 'chapter') {
       quizzes = await client.query(
@@ -41,15 +40,21 @@ export async function POST(request: Request) {
       quizzes = await client.query(`
         SELECT q.id 
         FROM quizzes q
+        JOIN chapters c ON c.id = q.chapter_id
         LEFT JOIN user_progress up ON up.quiz_id = q.id AND up.user_id = $1
-        WHERE up.id IS NULL
+        WHERE c.book_id = $2 AND up.id IS NULL
         ORDER BY RANDOM()
         LIMIT 10
-      `, [decoded.userId]);
-    } else {
-      quizzes = await client.query(
-        'SELECT id FROM quizzes ORDER BY RANDOM() LIMIT 10'
-      );
+      `, [decoded.userId, chapterId]); // chapterIdの代わりにbookIdを使用
+    } else { // random
+      quizzes = await client.query(`
+        SELECT q.id 
+        FROM quizzes q
+        JOIN chapters c ON c.id = q.chapter_id
+        WHERE c.book_id = $1
+        ORDER BY RANDOM()
+        LIMIT 10
+      `, [chapterId]); // chapterIdの代わりにbookIdを使用
     }
 
     // セッションクイズの作成
