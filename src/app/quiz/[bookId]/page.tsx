@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
 
 interface Chapter {
@@ -23,8 +23,9 @@ interface BookDetails {
   chapters: Chapter[];
 }
 
-export default function BookPage({ }: { params: { bookId: string } }) {
+export default function BookPage() {
   const router = useRouter();
+  const params = useParams();
   const [bookDetails, setBookDetails] = useState<BookDetails | null>(null);
 
   useEffect(() => {
@@ -36,17 +37,13 @@ export default function BookPage({ }: { params: { bookId: string } }) {
       }
 
       try {
-        // searchParamsを使用せず、コンポーネントの外でURLを構築
-        const bookId = window.location.pathname.split('/').pop();
-        const response = await fetch(`/api/books/${bookId}`, {
+        const response = await fetch(`/api/books/${params.bookId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch book details');
-        }
+        if (!response.ok) throw new Error('Failed to fetch book details');
 
         const data = await response.json();
         setBookDetails(data);
@@ -56,7 +53,7 @@ export default function BookPage({ }: { params: { bookId: string } }) {
     }
 
     fetchBookDetails();
-  }, [router]);
+  }, [router, params.bookId]);
 
   if (!bookDetails) {
     return <div className="p-4">Loading...</div>;
@@ -89,10 +86,7 @@ export default function BookPage({ }: { params: { bookId: string } }) {
               <div 
                 key={chapter.id} 
                 className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-                onClick={() => {
-					const bookId = window.location.pathname.split('/')[2]; // /quiz/[bookId] から取得
-      				router.push(`/quiz/${bookId}/chapters/${chapter.id}`);
-				}}
+                onClick={() => router.push(`/quiz/${params.bookId}/chapters/${chapter.id}`)}
                 role="button"
                 tabIndex={0}
               >

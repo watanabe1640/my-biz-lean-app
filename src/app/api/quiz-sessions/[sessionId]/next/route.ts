@@ -1,15 +1,17 @@
-// src/app/api/quiz-sessions/[sessionId]/next/route.ts
 import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth/jwt';
 
-export async function GET(
-  request: Request,
-  context: { params: { sessionId: string } }
-) {
-  const { sessionId } = await context.params;
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const sessionId = url.pathname.split('/').slice(-2, -1)[0]; // Extract sessionId
+
+  if (!sessionId) {
+    return NextResponse.json({ error: 'Session ID not found' }, { status: 400 });
+  }
+
   const token = request.headers.get('Authorization')?.split('Bearer ')[1];
-  
+
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

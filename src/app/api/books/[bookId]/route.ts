@@ -1,15 +1,17 @@
-// src/app/api/books/[bookId]/route.ts
 import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth/jwt';
 
-export async function GET(
-  request: Request,
-  context: { params: { bookId: string } }
-) {
-  const { bookId } = await context.params;
+export async function GET(request: Request) { // Changed to Request
+  const url = new URL(request.url);
+  const bookId = url.pathname.split('/').pop(); // Extract bookId from pathname
+
+  if (!bookId) {
+    return NextResponse.json({ error: 'Book ID not found' }, { status: 400 });
+  }
+
   const token = request.headers.get('Authorization')?.split('Bearer ')[1];
-  
+
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -25,7 +27,7 @@ export async function GET(
 
   try {
     await client.connect();
-    
+
     const bookResult = await client.query(`
       SELECT 
         b.id,
