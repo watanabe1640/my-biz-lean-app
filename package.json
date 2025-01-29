@@ -11,7 +11,9 @@
     "db:sample": "node -r dotenv/config src/lib/db/setup-sample.mjs dotenv_config_path=.env.local",
     "db:images": "node -r dotenv/config src/lib/db/setup-images.mjs dotenv_config_path=.env.local",
     "db:sessions": "node -r dotenv/config src/lib/db/setup-sessions.mjs dotenv_config_path=.env.local",
-    "db:optipedia": "node -r dotenv/config src/lib/db/setup-optipedia.mjs dotenv_config_path=.env.local"
+    "db:optipedia": "node -r dotenv/config src/lib/db/setup-optipedia.mjs dotenv_config_path=.env.local",
+    "db:check": "node -r dotenv/config src/lib/db/check-schema.mjs dotenv_config_path=.env.local",
+     "db:optimize": "node -r dotenv/config src/lib/db/optimize-database.mjs dotenv_config_path=.env.local"
   },
   "dependencies": {
     "@types/bcrypt": "^5.0.2",
