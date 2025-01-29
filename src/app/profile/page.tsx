@@ -61,20 +61,20 @@ export default function ProfilePage() {
   }, 0) / profileData.progress.length * 100;
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className="max-w-4xl mx-auto p-4 text-gray-900">
       {/* プロフィール情報 */}
       <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
         <div className="flex items-center space-x-4 mb-6">
           <div className="w-16 h-16 bg-gray-200 rounded-full"></div>
           <div>
             <h1 className="text-2xl font-bold">{profileData.user.name}</h1>
-            <p className="text-gray-600">{profileData.user.email}</p>
+            <p className="text-gray-900">{profileData.user.email}</p>
           </div>
         </div>
       </div>
 
       {/* 全体の進捗 */}
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-8 text-gray-900">
         <h2 className="text-xl font-bold mb-4">全体の進捗</h2>
         <div className="mb-2 flex justify-between">
           <span>総合進捗率</span>
@@ -89,7 +89,7 @@ export default function ProfilePage() {
       </div>
 
       {/* 書籍ごとの進捗 */}
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white rounded-lg shadow-lg p-6 text-gray-900">
         <h2 className="text-xl font-bold mb-4">書籍ごとの進捗</h2>
         <div className="space-y-6">
           {profileData.progress.map((book) => (

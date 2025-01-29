@@ -28,7 +28,6 @@ export default function BookPage() {
   const router = useRouter();
   const params = useParams();
   const [bookDetails, setBookDetails] = useState<BookDetails | null>(null);
-  const [hasUnansweredQuizzes, setHasUnansweredQuizzes] = useState(true);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -50,18 +49,6 @@ export default function BookPage() {
         if (!bookResponse.ok) throw new Error('Failed to fetch book details');
         const bookData = await bookResponse.json();
         setBookDetails(bookData);
-
-        // 未回答クイズの数を確認
-        const unansweredResponse = await fetch(`/api/books/${params.bookId}/unanswered-count`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (unansweredResponse.ok) {
-          const { count } = await unansweredResponse.json();
-          setHasUnansweredQuizzes(count > 0);
-        }
       } catch (err) {
         console.error('Error:', err);
       }
@@ -140,25 +127,6 @@ export default function BookPage() {
               >
                 ランダムモード
               </button>
-              {hasUnansweredQuizzes ? (
-                <button
-                  onClick={() => startQuizSession('unanswered')}
-                  disabled={loading}
-                  className={`bg-gray-600 text-white px-4 py-2 rounded ${
-                    loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'
-                  }`}
-                >
-                  未回答モード
-                </button>
-              ) : (
-                <button
-                  className="bg-gray-300 text-gray-500 px-4 py-2 rounded cursor-not-allowed"
-                  title="全ての問題に取り組み済みです"
-                  disabled
-                >
-                  未回答なし
-                </button>
-              )}
             </div>
           </div>
 
