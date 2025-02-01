@@ -3,8 +3,15 @@ import { createClient } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth/jwt';
 
+interface PostgresError extends Error {
+  code?: string;
+  detail?: string;
+}
+
 export async function POST(request: Request) {
   const token = request.headers.get('Authorization')?.split('Bearer ')[1];
+  
+
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -14,39 +21,34 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
 
-  const { sessionType, chapterId } = await request.json();
-  
-  const client = createClient({
-    connectionString: process.env.POSTGRES_URL_NON_POOLING
-  });
-
   try {
+    const { sessionType, bookId, difficultyId } = await request.json();
+
+    const client = createClient({
+      connectionString: process.env.POSTGRES_URL_NON_POOLING
+    });
+
     await client.connect();
 
     // セッション作成
     const sessionResult = await client.query(
-      'INSERT INTO quiz_sessions (user_id, session_type, chapter_id) VALUES ($1, $2, $3) RETURNING id',
-      [decoded.userId, sessionType, chapterId]
+      'INSERT INTO quiz_sessions (user_id, session_type) VALUES ($1, $2) RETURNING id',
+      [decoded.userId, sessionType]
     );
     const sessionId = sessionResult.rows[0].id;
 
+    // クイズの取得
     let quizzes;
-    if (sessionType === 'chapter') {
-      quizzes = await client.query(
-        'SELECT id FROM quizzes WHERE chapter_id = $1 ORDER BY RANDOM()',
-        [chapterId]
-      );
-    } else if (sessionType === 'unanswered') {
+    if (sessionType === 'difficulty') {
       quizzes = await client.query(`
         SELECT q.id 
         FROM quizzes q
         JOIN chapters c ON c.id = q.chapter_id
-        LEFT JOIN user_progress up ON up.quiz_id = q.id AND up.user_id = $1
-        WHERE c.book_id = $2 AND up.id IS NULL
+        WHERE c.book_id = $1 AND q.difficulty_id = $2
         ORDER BY RANDOM()
         LIMIT 10
-      `, [decoded.userId, chapterId]); // chapterIdの代わりにbookIdを使用
-    } else { // random
+      `, [bookId, difficultyId]);
+    } else {
       quizzes = await client.query(`
         SELECT q.id 
         FROM quizzes q
@@ -54,7 +56,7 @@ export async function POST(request: Request) {
         WHERE c.book_id = $1
         ORDER BY RANDOM()
         LIMIT 10
-      `, [chapterId]); // chapterIdの代わりにbookIdを使用
+      `, [bookId]);
     }
 
     // セッションクイズの作成
@@ -65,11 +67,14 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ sessionId });
-  } catch (err) {
-    console.error('Error creating quiz session:', err);
-    return NextResponse.json({ error: 'Failed to create quiz session' }, { status: 500 });
-  } finally {
     await client.end();
+    return NextResponse.json({ sessionId });
+  } catch (error: unknown) {
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      code: error instanceof Error && 'code' in error ? (error as PostgresError).code : undefined,
+      detail: error instanceof Error && 'detail' in error ? (error as PostgresError).detail : undefined
+    });
+    return NextResponse.json({ error: 'Failed to create quiz session' }, { status: 500 });
   }
 }

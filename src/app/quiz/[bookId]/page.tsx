@@ -24,11 +24,34 @@ interface BookDetails {
   chapters: Chapter[];
 }
 
+interface DifficultyLevel {
+  id: number;
+  name: string;
+}
+
 export default function BookPage() {
   const router = useRouter();
   const params = useParams();
   const [bookDetails, setBookDetails] = useState<BookDetails | null>(null);
   const [loading, setLoading] = useState(false);
+  const [difficulties, setDifficulties] = useState<DifficultyLevel[]>([]);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<number | null>(null);
+
+  useEffect(() => {
+    // 難易度一覧の取得
+    async function fetchDifficulties() {
+      const token = document.cookie.split('; ').find(row => row.startsWith('auth-token='))?.split('=')[1];
+      if (!token) return;
+
+      const response = await fetch('/api/difficulties', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      setDifficulties(data);
+    }
+
+    fetchDifficulties();
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -57,9 +80,13 @@ export default function BookPage() {
     fetchData();
   }, [router, params.bookId]);
 
-  const startQuizSession = async (mode: 'random' | 'unanswered') => {
+  const startQuizSession = async (mode: 'random' | 'difficulty') => {
     if (loading) return;
     setLoading(true);
+    if (!selectedDifficulty && mode === 'difficulty') {
+      alert('難易度を選択してください');
+      return;
+    }
 
     const token = document.cookie.split('; ').find(row => row.startsWith('auth-token='))?.split('=')[1];
     if (!token) {
@@ -76,7 +103,8 @@ export default function BookPage() {
         },
         body: JSON.stringify({
           sessionType: mode,
-          chapterId: params.bookId
+          bookId: params.bookId,
+          difficultyId: selectedDifficulty
         })
       });
 
@@ -118,6 +146,22 @@ export default function BookPage() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold">学習コンテンツ</h2>
             <div className="space-x-4">
+              <select 
+                value={selectedDifficulty || ''} 
+                onChange={(e) => setSelectedDifficulty(Number(e.target.value))}
+                className="border rounded p-2"
+              >
+                <option value="">難易度を選択</option>
+                {difficulties.map(d => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
+                ))}
+              </select>
+              <button
+                onClick={() => startQuizSession('difficulty')}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                難易度別モード
+              </button>
               <button
                 onClick={() => startQuizSession('random')}
                 disabled={loading}
